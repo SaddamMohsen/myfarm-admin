@@ -35,3 +35,34 @@ BEGIN
   RETURN user_id;
 END;
 $$ LANGUAGE plpgsql; 
+
+
+
+--function to retrieve users in specifeid schema who
+-- has no role admin and has no farm_id
+create or replace function retieve_users_in_schema(schema_name text,user_role text) RETURNS TABLE (
+  id uuid,
+  role varchar(255),
+  email varchar(255),
+  raw_app_meta_data JSONB,
+  raw_user_meta_data JSONB
+)  
+language plpgsql as $body$
+
+begin
+
+return query
+select
+  tbl.id,
+    tbl.role,
+    tbl.email,
+    tbl.raw_app_meta_data,
+    tbl.raw_user_meta_data
+from
+  auth.users as tbl
+where
+  tbl.raw_user_meta_data ->> 'schema' = schema_name and tbl.role=user_role  
+  and tbl.raw_user_meta_data ->'role' IS NULL and tbl.raw_user_meta_data ->'farm_id' is null;
+  
+End;
+$body$;

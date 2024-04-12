@@ -21,6 +21,12 @@ class HomeScreen extends StatelessWidget {
               onPressed: () => context.go('/farm'),
               child: const Text('Go to the Farm screen'),
             ),
+            ElevatedButton(
+              child: Text(' اضافة مزرعة '),
+              onPressed: () {
+                context.go('/addNewFarm');
+              },
+            ),
           ],
         ),
       ),

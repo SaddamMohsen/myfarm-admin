@@ -27,7 +27,9 @@ class _FarmPageState extends ConsumerState<FarmPage> {
           return Row(children: [
             ElevatedButton(
               child: Text(' اضافة مزرعة '),
-              onPressed: () {},
+              onPressed: () {
+                context.go('/addNewFarm');
+              },
             ),
             ElevatedButton(
               onPressed: () => {},
@@ -37,7 +39,7 @@ class _FarmPageState extends ConsumerState<FarmPage> {
         },
         onClosing: () => print("closing"),
       ),
-      body: Container(
+      body: Center(
         child: Column(
           children: [
             // ElevatedButton(
@@ -63,7 +65,6 @@ class _FarmPageState extends ConsumerState<FarmPage> {
                           onTap: () => {print(item.farm_name)},
                           child: ListTile(
                             selected: false,
-
                             selectedColor: Theme.of(context).primaryColor,
                             // tileColor: Colors.blue[100],
                             shape: Border.all(
@@ -116,7 +117,7 @@ class _FarmPageState extends ConsumerState<FarmPage> {
                                   labelStyle:
                                       Theme.of(context).textTheme.bodyMedium,
                                   label: Text(
-                                      'تاريخ البدايه:${item.farm_start_date.toString().substring(0, 11)}'),
+                                      'تاريخ البدايه:${item.farm_start_date.toString()}'),
                                 ),
                               ],
                             ),
@@ -137,6 +138,10 @@ class _FarmPageState extends ConsumerState<FarmPage> {
 
               // Text('صفحة المزارع'),
               ,
+            ),
+            ElevatedButton(
+              onPressed: () => context.go('/addNewFarm'),
+              child: const Text('انشاء مزرعة جديدة'),
             ),
           ],
         ),

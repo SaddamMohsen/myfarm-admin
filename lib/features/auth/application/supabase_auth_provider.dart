@@ -70,10 +70,6 @@ class AuthController extends _$AuthController {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() => Future.value(repository.currentUser));
     return repository.currentUser;
-    // if (repository.currentUser != null)
-    //   return left(repository.currentUser);
-    // else
-    //   return right('no user');
   }
 
   Future<bool> signOut() async {

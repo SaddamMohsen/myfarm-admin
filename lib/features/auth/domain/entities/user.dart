@@ -8,18 +8,19 @@ part 'user.g.dart';
 class UserEntity with _$UserEntity {
   @JsonSerializable(fieldRename: FieldRename.snake)
 
-  /// Factory Constructor
+  /// Factory Constructorlk;;l////////////////////
   const factory UserEntity({
     required String id,
     required String email,
-    required String phone,
+    required String? phone,
     // ignore: invalid_annotation_target
     @JsonKey(includeIfNull: false) DateTime? createdAt,
     @JsonKey(includeIfNull: false) DateTime? updatedAt,
-    @JsonKey(includeIfNull: false) DateTime? emailConfirmedAt,
-    @JsonKey(includeIfNull: false) DateTime? phoneConfirmedAt,
-    @JsonKey(includeIfNull: false) DateTime? lastSignInAt,
+    // @JsonKey(includeIfNull: false) DateTime? emailConfirmedAt,
+    // @JsonKey(includeIfNull: false) DateTime? phoneConfirmedAt,
+    // @JsonKey(includeIfNull: false) DateTime? lastSignInAt,
     @JsonKey(includeIfNull: false) Map<String, dynamic>? userMetadata,
+    @JsonKey(includeIfNull: false) Map<String, dynamic>? appMetadata,
     String? role,
   }) = _UserEntity;
 

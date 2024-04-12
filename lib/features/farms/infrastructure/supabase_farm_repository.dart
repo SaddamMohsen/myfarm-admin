@@ -14,7 +14,7 @@ class SupabaseFarmRepository implements FarmRepository {
   Future<List<FarmEntity>> getFarms() async {
     String schema = user.userMetadata?['schema'] ?? 'public';
     print(schema);
-    schema = schema.substring(0, 10);
+    //schema = schema.substring(0, 10);
     print(schema);
     List<FarmEntity> farms = [];
     try {
@@ -31,6 +31,7 @@ class SupabaseFarmRepository implements FarmRepository {
     }
   }
 
+  ///add new farm
   @override
   Future<FarmEntity> createNewFarm(FarmEntity newFarm) {
     // TODO: implement createNewFarm
