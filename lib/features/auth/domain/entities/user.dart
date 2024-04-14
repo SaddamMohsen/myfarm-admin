@@ -13,6 +13,7 @@ class UserEntity with _$UserEntity {
     required String id,
     required String email,
     required String? phone,
+    String? password,
     // ignore: invalid_annotation_target
     @JsonKey(includeIfNull: false) DateTime? createdAt,
     @JsonKey(includeIfNull: false) DateTime? updatedAt,

@@ -40,6 +40,8 @@ $$ LANGUAGE plpgsql;
 
 --function to retrieve users in specifeid schema who
 -- has no role admin and has no farm_id
+--HOW TO USE
+--select retieve_users_in_schema('al_watania','al_watania_users');
 create or replace function retieve_users_in_schema(schema_name text,user_role text) RETURNS TABLE (
   id uuid,
   role varchar(255),
@@ -48,9 +50,10 @@ create or replace function retieve_users_in_schema(schema_name text,user_role te
   raw_user_meta_data JSONB
 )  
 language plpgsql as $body$
-
+-- declare
+-- users_row RECORD;
 begin
-
+-- for users_row in 
 return query
 select
   tbl.id,
@@ -63,6 +66,9 @@ from
 where
   tbl.raw_user_meta_data ->> 'schema' = schema_name and tbl.role=user_role  
   and tbl.raw_user_meta_data ->'role' IS NULL and tbl.raw_user_meta_data ->'farm_id' is null;
-  
+  -- LOOP
+  --    RETURN NEXT users_row; -- return current row of SELECT
+  --   END LOOP;
+  --   RETURN;
 End;
 $body$;

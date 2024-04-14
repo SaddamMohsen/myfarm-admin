@@ -13,9 +13,9 @@ class SupabaseFarmRepository implements FarmRepository {
   @override
   Future<List<FarmEntity>> getFarms() async {
     String schema = user.userMetadata?['schema'] ?? 'public';
-    print(schema);
-    //schema = schema.substring(0, 10);
-    print(schema);
+
+    //if (schema != 'public') schema = schema.substring(0, 10);
+
     List<FarmEntity> farms = [];
     try {
       farms = await supabaseClient
@@ -24,7 +24,7 @@ class SupabaseFarmRepository implements FarmRepository {
           .select()
           .withConverter<List<FarmEntity>>(
               (data) => FarmDataConverter.farmtoList(data));
-      print(farms);
+
       return farms;
     } on PostgrestException catch (e) {
       throw e.message.toString();

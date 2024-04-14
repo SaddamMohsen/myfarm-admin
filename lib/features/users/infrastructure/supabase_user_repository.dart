@@ -13,14 +13,12 @@ class SupabaseUserRepository implements UserRepository {
   @override
   Future<List<UserEntity>> getUsers() async {
     String schema = user.userMetadata?['schema'] ?? 'public';
-    String? role = user.role ?? 'authenticated';
-    print(schema);
-    schema = schema.substring(0, 10);
-    print(schema);
+    String? role = user.userMetadata?['user_schema'] ?? 'authenticated';
+
     List<UserEntity> users = [];
     try {
       users = await supabaseClient
-          .useSchema(schema)
+          //.useSchema(schema)
           .rpc('retieve_users_in_schema', params: {
             'schema_name': schema,
             'user_role': role,
@@ -37,8 +35,26 @@ class SupabaseUserRepository implements UserRepository {
 
   ///add new User
   @override
-  Future<UserEntity> createNewUser(UserEntity newUser) {
+  Future<String> createNewUser(UserEntity newUser) async {
     // TODO: implement createNewUser
-    throw UnimplementedError();
+    String schema = user.userMetadata?['schema'] ?? 'public';
+    String? role = user.userMetadata?['user_schema'] ?? 'authenticated';
+
+    try {
+      await supabaseClient
+          //.useSchema(schema)
+          .rpc('create_user', params: {
+        'email': newUser.email,
+        'password': newUser.password,
+        'user_meta': {"schema": schema},
+        'schema_user_name': role,
+        'schema_name': schema,
+      });
+
+      return 'success';
+    } on PostgrestException catch (e) {
+      throw e.message.toString();
+    }
+    //throw UnimplementedError();
   }
 }

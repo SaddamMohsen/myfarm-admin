@@ -25,15 +25,85 @@ class _CreatFarmState extends State<CreatFarm> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      appBar: AppBar(
-        title: const Text('اضافة بيانات مزرعة جديد'),
-      ),
+      // appBar: AppBar(
+      //   title: const Text('اضافة بيانات مزرعة جديد'),
+      // ),
       body: SingleChildScrollView(
+        //scrollDirection: Axis.horizontal,
         child: SizedBox(
           height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
           child: Stepper(
             steps: getSteps(currentStep, form, context),
-            type: StepperType.horizontal,
+            //type: StepperType.horizontal,
+            currentStep: currentStep,
+            controlsBuilder: (context, details) => Row(
+              textDirection: TextDirection.rtl,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                //if it is the last step hide continue button
+                if (currentStep ==
+                    getSteps(currentStep, form, context).length - 1)
+                  const SizedBox()
+                else
+                  ElevatedButton(
+                    onPressed: () {
+                      print('pressed cont');
+                      setState(() {
+                        currentStep++;
+                      });
+                      details.onStepContinue;
+                    },
+                    child: Text('التالي'),
+                  ),
+                const SizedBox(
+                  width: 20.0,
+                ),
+                // if this is the first step hide the back button
+                if (currentStep == 0)
+                  const SizedBox()
+                else
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        currentStep--;
+                      });
+                    },
+                    child: Text('رجــــوع'),
+                  ),
+              ],
+            ),
+            onStepCancel: () => currentStep == 0
+                ? ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                    content: Text('لا توجد خطوة قبل هذه'),
+                  ))
+                : setState(() {
+                    currentStep--;
+                  }),
+            onStepContinue: () {
+              print('onstep continue');
+              bool isLastStep = (currentStep ==
+                  getSteps(currentStep, form, context).length - 1);
+              if (isLastStep) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('لقدوصلت للنهاية لا تنسى الحفظ'),
+                  ),
+                );
+              } else {
+                setState(() {
+                  currentStep++;
+                });
+              }
+            },
+            onStepTapped: (step) => {
+              if (currentStep != 0)
+                setState(() {
+                  currentStep = step;
+                })
+              else
+                {}
+            },
           ),
         ),
       ),
@@ -90,8 +160,8 @@ List<Step> getSteps(int currentStep, FormGroup form, BuildContext context) {
         )),
     //step 3 to insert production of eggs and out eggs and save
     Step(
-      state: currentStep > 4 ? StepState.complete : StepState.indexed,
-      isActive: currentStep >= 4,
+      state: currentStep > 3 ? StepState.complete : StepState.indexed,
+      isActive: currentStep >= 3,
       title: const Text(
         "تعيين مشرف للمزرعة",
       ),
@@ -103,17 +173,15 @@ List<Step> getSteps(int currentStep, FormGroup form, BuildContext context) {
 
             return users.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Text('خطأ: $err'),
+              error: (err, stack) =>
+                  Text('خطأ في استرجاع بيانات المشرفين: $err'),
               data: (data) => ReactiveDropdownField(
-                formControlName: 'farmSuperVisor',
-                //dropdownColor: const Color.fromARGB(255, 235, 237, 240),
+                formControlName: 'farmSupervisor',
                 borderRadius: BorderRadius.circular(15),
                 elevation: 10,
-                // decoration:
-                //     customeInputDecoration(context, 'حدد رقم العنبر'),
                 alignment: AlignmentDirectional.bottomEnd,
 
-                //get the list of ambers and convert it into dropdown men item list
+                //get the list of users and convert it into dropdown men item list
                 items: data.map<DropdownMenuItem<String>>((userData) {
                   return DropdownMenuItem<String>(
                     value: userData.id,
@@ -127,8 +195,8 @@ List<Step> getSteps(int currentStep, FormGroup form, BuildContext context) {
       ),
     ),
     Step(
-      state: currentStep > 3 ? StepState.complete : StepState.indexed,
-      isActive: currentStep >= 3,
+      state: currentStep > 4 ? StepState.complete : StepState.indexed,
+      isActive: currentStep >= 4,
       title: const Text(
         "عدد العنابر",
       ),
