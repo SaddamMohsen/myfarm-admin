@@ -20,7 +20,6 @@ class FarmEntity with _$FarmEntity {
     @JsonKey(includeIfNull: false) DateTime? farm_start_date,
     @JsonKey(includeIfNull: false) DateTime? farm_end_date,
     String? farm_supervisor,
-    String? role,
   }) = _FarmEntity;
 
   /// factory method to create entity from JSON

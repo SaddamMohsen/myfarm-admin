@@ -72,3 +72,43 @@ where
   --   RETURN;
 End;
 $body$;
+
+
+--Function to insert Supervisor for farm invoked by insert trigger
+create or replace function insert_to_supervisors_table_after_add_farm() returns trigger 
+ language plpgsql security definer as $func$
+declare
+email varchar:=(select email from auth.users where id=new.farm_supervisor);
+
+begin
+insert into public.supervisors(name,details,u_id) values(email,'مشرف مزرعة '||new.farm_name,new.farm_supervisor);
+update auth.users set raw_user_meta_data=raw_user_meta_data||jsonb_build_object('farm_id', new.id) where id=new.farm_supervisor;
+return new;
+end;
+$func$;
+
+
+--Function to delete all related farm from database 
+--invoked by delete trigger of farm
+CREATE OR REPLACE FUNCTION delete_related_farm_data()
+RETURNS TRIGGER AS $$
+declare
+schema text:=(select raw_user_meta_data->'schema' from auth.users where id=old.farm_supervisor);
+BEGIN
+  DELETE FROM production USING farms f
+  WHERE production.farm_id = OLD.id;
+
+  DELETE FROM ambers USING farms f
+  WHERE ambers.farm_id = OLD.id;
+
+  DELETE FROM items_movement USING farms f
+  WHERE items_movement.farm_id = OLD.id;
+
+  DELETE FROM inventory USING farms f
+  WHERE inventory.farm_id = OLD.id;
+   
+   update auth.users set raw_user_meta_data=json_build_object('schema',schema) where id=old.farm_supervisor;
+
+  RETURN null;
+END;
+$$ LANGUAGE plpgsql security definer;

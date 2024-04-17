@@ -1,33 +1,35 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:myfarmadmin/features/farms/application/create_farm.dart';
+import 'package:myfarmadmin/features/farms/domain/entities/farm_entity.dart';
 import 'package:myfarmadmin/features/users/application/get_users_list.dart';
 import 'package:reactive_forms/reactive_forms.dart';
-import 'package:myfarmadmin/util/constant.dart';
 
-class CreatFarm extends StatefulWidget {
+class CreatFarm extends ConsumerStatefulWidget {
   const CreatFarm({super.key});
 
   @override
-  State<CreatFarm> createState() => _CreatFarmState();
+  ConsumerState<CreatFarm> createState() => _CreatFarmState();
 }
 
-class _CreatFarmState extends State<CreatFarm> {
+class _CreatFarmState extends ConsumerState<CreatFarm> {
   final form = FormGroup({
-    'farmName': FormControl<String>(validators: [Validators.required]),
-    'farmType': FormControl<FarmType>(validators: [Validators.required]),
-    'noOfAmbers': FormControl<int>(validators: [Validators.required]),
-    'farmStartDate': FormControl<DateTime>(),
-    'isRunning': FormControl<bool>(),
-    'farmSupervisor': FormControl<String>(validators: [Validators.required])
+    'id': FormControl<int>(value: 4),
+    'farm_name': FormControl<String>(validators: [Validators.required]),
+    'farm_type': FormControl<String>(validators: [Validators.required]),
+    'no_of_ambers': FormControl<int>(validators: [Validators.required]),
+    'farm_start_date': FormControl<DateTime>(),
+    'is_running': FormControl<bool>(value: true),
+    'farm_supervisor': FormControl<String>(validators: [Validators.required]),
   });
   int currentStep = 0;
+  late FarmEntity newFarm;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      // appBar: AppBar(
-      //   title: const Text('اضافة بيانات مزرعة جديد'),
-      // ),
       body: SingleChildScrollView(
         //scrollDirection: Axis.horizontal,
         child: SizedBox(
@@ -44,11 +46,27 @@ class _CreatFarmState extends State<CreatFarm> {
                 //if it is the last step hide continue button
                 if (currentStep ==
                     getSteps(currentStep, form, context).length - 1)
-                  const SizedBox()
+                  SizedBox(
+                    width: 100,
+                    height: 40,
+                    child: ReactiveForm(
+                      formGroup: form,
+                      child: ReactiveFormConsumer(
+                        builder: (context, form, child) => ElevatedButton(
+                          onPressed: () => {
+                            print(form.value),
+                            newFarm = FarmEntity.fromJson(form.value),
+                            ref.watch(CreateFarmProvider(newFarm: newFarm)),
+                            print({newFarm}),
+                          },
+                          child: Text('حفظ'),
+                        ),
+                      ),
+                    ),
+                  )
                 else
                   ElevatedButton(
                     onPressed: () {
-                      print('pressed cont');
                       setState(() {
                         currentStep++;
                       });
@@ -81,7 +99,6 @@ class _CreatFarmState extends State<CreatFarm> {
                     currentStep--;
                   }),
             onStepContinue: () {
-              print('onstep continue');
               bool isLastStep = (currentStep ==
                   getSteps(currentStep, form, context).length - 1);
               if (isLastStep) {
@@ -119,14 +136,14 @@ List<Step> getSteps(int currentStep, FormGroup form, BuildContext context) {
       title: const Text("اسم المزرعة"),
       content: Container(
         width: 150.0,
-        height: 60,
+        height: 40,
         decoration: BoxDecoration(
           border: Border.all(width: 0.5, color: Theme.of(context).primaryColor),
           borderRadius: BorderRadius.circular(5),
         ),
         child: ReactiveForm(
           formGroup: form,
-          child: ReactiveTextField(formControlName: 'farmName'),
+          child: ReactiveTextField(formControlName: 'farm_name'),
         ),
       ),
     ),
@@ -139,29 +156,62 @@ List<Step> getSteps(int currentStep, FormGroup form, BuildContext context) {
         ),
         content: ReactiveForm(
           formGroup: form,
-          child:
-              ReactiveDropdownField(formControlName: 'farmType', items: const [
-            DropdownMenuItem(
-              value: FarmType.Laying,
-              child: Text('بياض'),
+          child: Container(
+            width: 150.0,
+            height: 50,
+            decoration: BoxDecoration(
+              border:
+                  Border.all(width: 0.5, color: Theme.of(context).primaryColor),
+              borderRadius: BorderRadius.circular(5),
             ),
-            DropdownMenuItem(
-              value: FarmType.Broiler,
-              child: Text('لاحم'),
-            ),
-            DropdownMenuItem(
-              value: FarmType.Brood,
-              child: Text('امهات'),
-            )
-          ]),
+            child: ReactiveDropdownField(
+                formControlName: 'farm_type',
+                elevation: 10,
+                alignment: Alignment.bottomCenter,
+                items: [
+                  DropdownMenuItem<String>(
+                    value: 'بياض',
+                    child: Text('بياض'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'لاحم',
+                    child: Text('لاحم'),
+                  ),
+                  const DropdownMenuItem(
+                    value: 'امهات',
+                    child: Text('امهات'),
+                  )
+                ].toList()),
+          ),
         ),
         label: const Text(
           'نوع المزرعة',
         )),
-    //step 3 to insert production of eggs and out eggs and save
     Step(
       state: currentStep > 3 ? StepState.complete : StepState.indexed,
       isActive: currentStep >= 3,
+      title: const Text(
+        "عدد العنابر",
+      ),
+      content: Container(
+        width: 150.0,
+        height: 50,
+        decoration: BoxDecoration(
+          border: Border.all(width: 0.5, color: Theme.of(context).primaryColor),
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: ReactiveForm(
+          formGroup: form,
+          child: ReactiveTextField(
+            formControlName: 'no_of_ambers',
+            keyboardType: TextInputType.number,
+          ),
+        ),
+      ),
+    ),
+    Step(
+      state: currentStep > 4 ? StepState.complete : StepState.indexed,
+      isActive: currentStep >= 4,
       title: const Text(
         "تعيين مشرف للمزرعة",
       ),
@@ -175,34 +225,31 @@ List<Step> getSteps(int currentStep, FormGroup form, BuildContext context) {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, stack) =>
                   Text('خطأ في استرجاع بيانات المشرفين: $err'),
-              data: (data) => ReactiveDropdownField(
-                formControlName: 'farmSupervisor',
-                borderRadius: BorderRadius.circular(15),
-                elevation: 10,
-                alignment: AlignmentDirectional.bottomEnd,
+              data: (data) => Container(
+                height: 60,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                      width: 0.5, color: Theme.of(context).primaryColor),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: ReactiveDropdownField(
+                  formControlName: 'farm_supervisor',
+                  borderRadius: BorderRadius.circular(15),
+                  elevation: 10,
+                  alignment: AlignmentDirectional.bottomEnd,
 
-                //get the list of users and convert it into dropdown men item list
-                items: data.map<DropdownMenuItem<String>>((userData) {
-                  return DropdownMenuItem<String>(
-                    value: userData.id,
-                    child: Text('${userData.email}'),
-                  );
-                }).toList(),
+                  //get the list of users and convert it into dropdown men item list
+                  items: data.map<DropdownMenuItem<String>>((userData) {
+                    return DropdownMenuItem<String>(
+                      value: userData.id,
+                      child: Text('${userData.email}'),
+                    );
+                  }).toList(),
+                ),
               ),
             );
           },
         ),
-      ),
-    ),
-    Step(
-      state: currentStep > 4 ? StepState.complete : StepState.indexed,
-      isActive: currentStep >= 4,
-      title: const Text(
-        "عدد العنابر",
-      ),
-      content: ReactiveForm(
-        formGroup: form,
-        child: ReactiveTextField(formControlName: 'noOfAmbers'),
       ),
     ),
   ];

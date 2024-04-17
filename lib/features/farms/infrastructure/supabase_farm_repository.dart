@@ -33,13 +33,27 @@ class SupabaseFarmRepository implements FarmRepository {
 
   ///add new farm
   @override
-  Future<FarmEntity> createNewFarm(FarmEntity newFarm) {
+  Future<void> createNewFarm(FarmEntity newFarm) async {
     // TODO: implement createNewFarm
+    String schema = user.userMetadata?['schema'] ?? 'public';
+    print(schema);
+    print({newFarm});
+    try {
+      await supabaseClient.useSchema(schema).from('farms').insert({
+        'farm_name': newFarm.farm_name,
+        'farm_type': newFarm.farm_type,
+        'farm_supervisor': newFarm.farm_supervisor,
+        'no_of_ambers': newFarm.no_of_ambers,
+      });
+      return;
+    } on PostgrestException catch (e) {
+      print('postgressException');
+      print(e.message);
+    } catch (e) {
+      print('in creact farm catch');
+      print(e.toString());
+    }
+
     throw UnimplementedError();
   }
-}
-
-@override
-Future<FarmEntity> createNewFarm(FarmEntity farm) {
-  throw UnimplementedError();
 }
